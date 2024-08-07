@@ -3,8 +3,7 @@ name: 基于讨论生成博客文章
 on:
   discussion:
     types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
-  workflow_dispatch:
-  
+
 permissions:
   contents: write
   pages: write
@@ -13,16 +12,16 @@ permissions:
 jobs:
   process-payload:
     name: Process payload
-    if: contains(fromJson('["announcements", "memo"]'), github.event.discussion.category.slug)
+    if: contains(fromJson('["release", "memo"]'), github.event.discussion.category.slug)
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: 安装 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 20
 
@@ -30,7 +29,9 @@ jobs:
         run: corepack enable
 
       - name: 安装依赖
-        run: pnpm install
+        run: pnpm -v
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
 
       - name: 讨论转化文章-payload
         run: pnpm run discussions-process-posts "${{github.event_path}}"
