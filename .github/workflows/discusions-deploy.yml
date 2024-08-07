@@ -1,0 +1,59 @@
+name: 基于讨论生成博客文章
+
+on:
+  discussion:
+    types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
+  workflow_dispatch:
+  
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  process-payload:
+    name: Process payload
+    if: contains(fromJson('["release", "memo"]'), github.event.discussion.category.slug)
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 启用 pnpm
+        run: corepack enable
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 讨论转化文章-payload
+        run: pnpm run discussions-process-posts "${{github.event_path}}"
+
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          branch: master
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 安装、构建和上传您的网站
+        uses: withastro/action@v1
+        with:
+          path: .
+          node-version: 20
+          package-manager: pnpm@latest
+  deploy:
+    needs: process-payload
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
