@@ -21,16 +21,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: 安装 Node.js
-        uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: 20
-
-      - name: 启用 pnpm
-        run: corepack enable
-
-      - name: 安装依赖
-        run: pnpm install --frozen-lockfile
+          version: 8
+          run_install: true
+          standalone: true
 
       - name: 讨论转化文章-payload
         run: pnpm run discussions-process-posts "${{github.event_path}}"
