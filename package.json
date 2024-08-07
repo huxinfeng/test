@@ -12,8 +12,6 @@
     "discussions-process-posts": "pnpx tsx scripts/discussions-process-posts.ts",
     "prepare": "husky"
   },
-  "dependencies": {
-  },
   "devDependencies": {
     "@octokit/graphql": "^8.1.1",
   },
