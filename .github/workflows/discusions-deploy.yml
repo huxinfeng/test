@@ -12,7 +12,7 @@ permissions:
 jobs:
   process-payload:
     name: Process payload
-    if: contains(fromJson('["release", "memo"]'), github.event.discussion.category.slug)
+    if: contains(fromJson('["announcements", "memo"]'), github.event.discussion.category.slug)
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
