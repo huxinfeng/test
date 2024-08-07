@@ -1,4 +1,4 @@
-name: 基于讨论生成博客文章
+name: 讨论生成博客文章
 
 on:
   discussion:
@@ -24,8 +24,13 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-          run_install: true
-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
       - name: 讨论转化文章-payload
         run: pnpm run discussions-process-posts "${{github.event_path}}"
 
