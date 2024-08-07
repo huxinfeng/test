@@ -209,7 +209,7 @@ const discussionsProcessPosts = (githubEventPath: string) => {
       writeDiscussion(repoOwner, repoName, discussionNumber);
       break;
     case 'deleted':
-      deleteDiscussion(event.discussion.category.from.slug, discussionNumber);
+      // deleteDiscussion(event.discussion.category.from.slug, discussionNumber);
       break;
     case 'category_changed':
       deleteDiscussion(event.changes.category.from.slug, discussionNumber);
