@@ -11,48 +11,21 @@ permissions:
   id-token: write
 
 jobs:
-  process-payload:
-    name: Process payload
-    if: contains(fromJson('["announcements", "memo"]'), github.event.discussion.category.slug)
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [20]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: 讨论转化文章-payload
-        run: pnpm run discussions-process-posts "${{github.event_path}}"
-
-      - name: Commit & Push changes
-        uses: actions-js/push@master
-        with:
-          branch: master
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 安装、构建和上传您的网站
-        uses: withastro/action@v1
-        with:
-          path: .
-          node-version: 20
-          package-manager: pnpm@latest
-  deploy:
-    needs: process-payload
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: 部署到 GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+    - uses: actions/checkout@v4
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+    - name: Install dependencies
+      run: pnpm install
