@@ -23,11 +23,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: '.node-version'
+          cache: 'pnpm'
 
       - name: enable pnpm
         run: corepack enable
 
+      - name: cache pnpm
+        id: cache-pnpm
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: cache node_modules
+        id: cache-node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-node_modules-
+
       - name: install dependencies
+        if: steps.cache-node_modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
 
       - name: discussions process posts payload
