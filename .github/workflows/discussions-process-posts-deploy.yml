@@ -6,10 +6,6 @@ on:
   discussion:
     types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
 jobs:
   discussions-process-posts:
     name: Discussions Process Posts
@@ -35,7 +31,7 @@ jobs:
         id: cache_node_modules
         uses: actions/cache@v4
         with:
-          path: node_modules
+          path: ./node_modules/
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: ${{ runner.os }}-node_modules-
 
@@ -46,14 +42,13 @@ jobs:
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{ github.event_path }}"
 
-
-      # - name: cache posts
-      #   id: cache_posts
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: src/content/blog
-      #     key: ${{ runner.os }}-cache_posts-${{ hashFiles('src/content/blog/**/*.md') }}
-      #     restore-keys: ${{ runner.os }}-cache_posts-
+      - name: cache posts
+        id: cache_posts
+        uses: actions/cache@v4
+        with:
+          path: ./src/content/blog/
+          key: ${{ runner.os }}-cache_posts-${{ hashFiles('src/content/blog/**/*.md') }}
+          restore-keys: ${{ runner.os }}-cache_posts-
 
       - name: Use cached files
         run: |
@@ -86,3 +81,20 @@ jobs:
       - name: deploy to gitHub pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-cloudflare:
+    name: Deploy Cloudflare
+    needs: discussions-process-posts
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy to cloudflare pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: YOUR_ACCOUNT_ID
+          projectName: YOUR_PROJECT_NAME
+          directory: YOUR_BUILD_OUTPUT_DIRECTORY
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          workingDirectory: my-site
+          wranglerVersion: '3'
