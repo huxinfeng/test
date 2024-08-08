@@ -1,10 +1,10 @@
 # discussions 触发以下操作 [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed] 时，生成文章并且发布至 Github Pages 和 Cloudflare Pages
 
-name: discussions-process-posts-deploy
+name: Discussions Process Posts Deploy
 
 on:
   discussion:
-    types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed，answered]
+    types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
 
 permissions:
   contents: write
@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   discussions-process-posts:
+    name: Discussions Process Posts
     if: contains(fromJson('["q-a", "memo"]'), github.event.discussion.category.slug)
     runs-on: ubuntu-latest
     env:
@@ -20,40 +21,20 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-
-      - name: install nodejs 20
-        uses: actions/setup-node@v3
         with:
-          node-version: 20
+          ref: main
+
+      - name: setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
 
       - name: enable pnpm
         run: corepack enable
 
       - name: install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{github.event_path}}"
-
-      - name: commit & push changes
-        uses: actions-js/push@master
-        with:
-          branch: master
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: install, build, and upload your site
-        uses: withastro/action@v1
-        with:
-          path: .
-          node-version: 20
-          package-manager: pnpm@latest
-  deploy:
-    needs: discussions-process-posts
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
