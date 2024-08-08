@@ -1,0 +1,47 @@
+name: 部署到 GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'public/**'
+      - 'src/**'
+      - 'astro.config.ts'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 使用 git 签出您的仓库
+        uses: actions/checkout@v3
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 安装、构建和上传您的网站
+        uses: withastro/action@v1
+        with:
+          path: .
+          node-version: 20
+          package-manager: pnpm@latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1

@@ -27,20 +27,21 @@ interface IDiscussionRes {
   };
 }
 
-interface ICategory {
-  from: {
-    slug: string;
-  };
-}
+type TAction = 'created' | 'edited' | 'deleted' | 'pinned' | 'unpinned' | 'labeled' | 'unlabeled' | 'category_changed';
 interface IGithubEventPath {
-  action: any;
+  action: TAction;
   discussion: {
-    number: any;
-    html_url: string;
-    category: ICategory;
+    number: number;
+    category: {
+      slug: string;
+    };
   };
-  changes: {
-    category: ICategory;
+  repository: {
+    node_id: string;
+    name: string;
+    owner: {
+      login: string;
+    };
   };
 }
 
@@ -76,7 +77,7 @@ function getFrontMatter(lines: string[]) {
   }
   return { frontMatter, remaining };
 }
-async function writeDiscussion(repoOwner: string, repoName: string, discussionNumber: number) {
+async function writeDiscussion(repoOwner: string, repoName: string, discussionNumber: number, repoId: string) {
   console.log(`Write discussion https://github.com/${repoOwner}/${repoName}/discussions/${discussionNumber}`);
 
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -155,7 +156,7 @@ async function writeDiscussion(repoOwner: string, repoName: string, discussionNu
   result.push(
     `<script src="https://giscus.app/client.js"
       data-repo="${repoOwner}/${repoName}"
-      data-repo-id="R_kgDOMf8VRA"
+      data-repo-id="${repoId}"
       data-mapping="number"
       data-term="${discussionNumber}"
       data-reactions-enabled="1"
@@ -170,8 +171,8 @@ async function writeDiscussion(repoOwner: string, repoName: string, discussionNu
 
   fs.writeFileSync(path.join(dir, `${discussionNumber}.md`), result.join('\n'));
 }
-function deleteDiscussion(category: string, discussionNumber: number) {
-  const filepath = path.join('src/content/blog', category, `${discussionNumber}.md`);
+function deleteDiscussion(categoryNmae: string, discussionNumber: number) {
+  const filepath = path.join('src/content/blog', categoryNmae, `${discussionNumber}.md`);
   if (fs.existsSync(filepath)) {
     console.log(`Deleting ${filepath}`);
     fs.rmSync(filepath);
@@ -180,24 +181,12 @@ function deleteDiscussion(category: string, discussionNumber: number) {
 
 const discussionsProcessPosts = (githubEventPath: string) => {
   const event: IGithubEventPath = JSON.parse(fs.readFileSync(githubEventPath, 'utf-8'));
-  console.log(event);
   const action = event.action;
+  const repoId = event.repository.node_id;
+  const repoOwner = event.repository.owner.login;
+  const repoName = event.repository.name;
   const discussionNumber = event.discussion.number;
-  const regex = /https:\/\/github.com\/([\w.-]+)\/([\w.-]+)\/discussions\/\d+/;
-  const matches = regex.exec(event.discussion.html_url);
-
-  if (!matches) {
-    console.error('Invalid discussion URL:', event.discussion.html_url);
-    process.exit(1);
-  }
-
-  const repoOwner = matches[1];
-  const repoName = matches[2];
-
-  if (repoOwner === undefined || repoName === undefined) {
-    console.error('Invalid regex:', matches);
-    process.exit(1);
-  }
+  const categoryNmae = event.discussion.category.slug;
 
   switch (action) {
     case 'created':
@@ -206,14 +195,14 @@ const discussionsProcessPosts = (githubEventPath: string) => {
     case 'unpinned':
     case 'labeled':
     case 'unlabeled':
-      writeDiscussion(repoOwner, repoName, discussionNumber);
+      writeDiscussion(repoOwner, repoName, discussionNumber, repoId);
       break;
     case 'deleted':
-      // deleteDiscussion(event.discussion.category.from.slug, discussionNumber);
+      deleteDiscussion(categoryNmae, discussionNumber);
       break;
     case 'category_changed':
-      deleteDiscussion(event.changes.category.from.slug, discussionNumber);
-      writeDiscussion(repoOwner, repoName, discussionNumber);
+      deleteDiscussion(categoryNmae, discussionNumber);
+      writeDiscussion(repoOwner, repoName, discussionNumber, repoId);
       break;
   }
 };
@@ -233,3 +222,195 @@ const init = () => {
   discussionsProcessPosts(githubEventPath);
 };
 init();
+
+const a = {
+  action: 'edited',
+  changes: { body: { from: '1' } },
+  discussion: {
+    active_lock_reason: null,
+    answer_chosen_at: null,
+    answer_chosen_by: null,
+    answer_html_url: null,
+    author_association: 'OWNER',
+    body: '11',
+    category: {
+      created_at: '2024-08-08T07:08:03.000+08:00',
+      description: 'memo1',
+      emoji: ':hash:',
+      id: 42328614,
+      is_answerable: false,
+      name: 'memo',
+      node_id: 'DIC_kwDOMc_Hes4CheIm',
+      repository_id: 835700602,
+      slug: 'memo',
+      updated_at: '2024-08-08T07:08:03.000+08:00',
+    },
+    comments: 0,
+    created_at: '2024-08-07T23:08:19Z',
+    html_url: 'https://github.com/huxinfeng/test/discussions/10',
+    id: 7023555,
+    labels: [],
+    locked: false,
+    node_id: 'D_kwDOMc_Hes4AayvD',
+    number: 10,
+    reactions: {
+      '+1': 0,
+      '-1': 0,
+      confused: 0,
+      eyes: 0,
+      heart: 0,
+      hooray: 0,
+      laugh: 0,
+      rocket: 0,
+      total_count: 0,
+      url: 'https://api.github.com/repos/huxinfeng/test/discussions/10/reactions',
+    },
+    repository_url: 'https://api.github.com/repos/huxinfeng/test',
+    state: 'open',
+    state_reason: null,
+    timeline_url: 'https://api.github.com/repos/huxinfeng/test/discussions/10/timeline',
+    title: '12',
+    updated_at: '2024-08-07T23:09:20Z',
+    user: {
+      avatar_url: 'https://avatars.githubusercontent.com/u/63422671?v=4',
+      events_url: 'https://api.github.com/users/huxinfeng/events{/privacy}',
+      followers_url: 'https://api.github.com/users/huxinfeng/followers',
+      following_url: 'https://api.github.com/users/huxinfeng/following{/other_user}',
+      gists_url: 'https://api.github.com/users/huxinfeng/gists{/gist_id}',
+      gravatar_id: '',
+      html_url: 'https://github.com/huxinfeng',
+      id: 63422671,
+      login: 'huxinfeng',
+      node_id: 'MDQ6VXNlcjYzNDIyNjcx',
+      organizations_url: 'https://api.github.com/users/huxinfeng/orgs',
+      received_events_url: 'https://api.github.com/users/huxinfeng/received_events',
+      repos_url: 'https://api.github.com/users/huxinfeng/repos',
+      site_admin: false,
+      starred_url: 'https://api.github.com/users/huxinfeng/starred{/owner}{/repo}',
+      subscriptions_url: 'https://api.github.com/users/huxinfeng/subscriptions',
+      type: 'User',
+      url: 'https://api.github.com/users/huxinfeng',
+    },
+  },
+  repository: {
+    allow_forking: true,
+    archive_url: 'https://api.github.com/repos/huxinfeng/test/{archive_format}{/ref}',
+    archived: false,
+    assignees_url: 'https://api.github.com/repos/huxinfeng/test/assignees{/user}',
+    blobs_url: 'https://api.github.com/repos/huxinfeng/test/git/blobs{/sha}',
+    branches_url: 'https://api.github.com/repos/huxinfeng/test/branches{/branch}',
+    clone_url: 'https://github.com/huxinfeng/test.git',
+    collaborators_url: 'https://api.github.com/repos/huxinfeng/test/collaborators{/collaborator}',
+    comments_url: 'https://api.github.com/repos/huxinfeng/test/comments{/number}',
+    commits_url: 'https://api.github.com/repos/huxinfeng/test/commits{/sha}',
+    compare_url: 'https://api.github.com/repos/huxinfeng/test/compare/{base}...{head}',
+    contents_url: 'https://api.github.com/repos/huxinfeng/test/contents/{+path}',
+    contributors_url: 'https://api.github.com/repos/huxinfeng/test/contributors',
+    created_at: '2024-07-30T11:09:31Z',
+    default_branch: 'main',
+    deployments_url: 'https://api.github.com/repos/huxinfeng/test/deployments',
+    description: null,
+    disabled: false,
+    downloads_url: 'https://api.github.com/repos/huxinfeng/test/downloads',
+    events_url: 'https://api.github.com/repos/huxinfeng/test/events',
+    fork: false,
+    forks: 0,
+    forks_count: 0,
+    forks_url: 'https://api.github.com/repos/huxinfeng/test/forks',
+    full_name: 'huxinfeng/test',
+    git_commits_url: 'https://api.github.com/repos/huxinfeng/test/git/commits{/sha}',
+    git_refs_url: 'https://api.github.com/repos/huxinfeng/test/git/refs{/sha}',
+    git_tags_url: 'https://api.github.com/repos/huxinfeng/test/git/tags{/sha}',
+    git_url: 'git://github.com/huxinfeng/test.git',
+    has_discussions: true,
+    has_downloads: true,
+    has_issues: true,
+    has_pages: false,
+    has_projects: true,
+    has_wiki: false,
+    homepage: null,
+    hooks_url: 'https://api.github.com/repos/huxinfeng/test/hooks',
+    html_url: 'https://github.com/huxinfeng/test',
+    id: 835700602,
+    is_template: false,
+    issue_comment_url: 'https://api.github.com/repos/huxinfeng/test/issues/comments{/number}',
+    issue_events_url: 'https://api.github.com/repos/huxinfeng/test/issues/events{/number}',
+    issues_url: 'https://api.github.com/repos/huxinfeng/test/issues{/number}',
+    keys_url: 'https://api.github.com/repos/huxinfeng/test/keys{/key_id}',
+    labels_url: 'https://api.github.com/repos/huxinfeng/test/labels{/name}',
+    language: 'TypeScript',
+    languages_url: 'https://api.github.com/repos/huxinfeng/test/languages',
+    license: null,
+    merges_url: 'https://api.github.com/repos/huxinfeng/test/merges',
+    milestones_url: 'https://api.github.com/repos/huxinfeng/test/milestones{/number}',
+    mirror_url: null,
+    name: 'test',
+    node_id: 'R_kgDOMc_Heg',
+    notifications_url: 'https://api.github.com/repos/huxinfeng/test/notifications{?since,all,participating}',
+    open_issues: 0,
+    open_issues_count: 0,
+    owner: {
+      avatar_url: 'https://avatars.githubusercontent.com/u/63422671?v=4',
+      events_url: 'https://api.github.com/users/huxinfeng/events{/privacy}',
+      followers_url: 'https://api.github.com/users/huxinfeng/followers',
+      following_url: 'https://api.github.com/users/huxinfeng/following{/other_user}',
+      gists_url: 'https://api.github.com/users/huxinfeng/gists{/gist_id}',
+      gravatar_id: '',
+      html_url: 'https://github.com/huxinfeng',
+      id: 63422671,
+      login: 'huxinfeng',
+      node_id: 'MDQ6VXNlcjYzNDIyNjcx',
+      organizations_url: 'https://api.github.com/users/huxinfeng/orgs',
+      received_events_url: 'https://api.github.com/users/huxinfeng/received_events',
+      repos_url: 'https://api.github.com/users/huxinfeng/repos',
+      site_admin: false,
+      starred_url: 'https://api.github.com/users/huxinfeng/starred{/owner}{/repo}',
+      subscriptions_url: 'https://api.github.com/users/huxinfeng/subscriptions',
+      type: 'User',
+      url: 'https://api.github.com/users/huxinfeng',
+    },
+    private: false,
+    pulls_url: 'https://api.github.com/repos/huxinfeng/test/pulls{/number}',
+    pushed_at: '2024-08-07T21:53:35Z',
+    releases_url: 'https://api.github.com/repos/huxinfeng/test/releases{/id}',
+    size: 67184,
+    ssh_url: 'git@github.com:huxinfeng/test.git',
+    stargazers_count: 0,
+    stargazers_url: 'https://api.github.com/repos/huxinfeng/test/stargazers',
+    statuses_url: 'https://api.github.com/repos/huxinfeng/test/statuses/{sha}',
+    subscribers_url: 'https://api.github.com/repos/huxinfeng/test/subscribers',
+    subscription_url: 'https://api.github.com/repos/huxinfeng/test/subscription',
+    svn_url: 'https://github.com/huxinfeng/test',
+    tags_url: 'https://api.github.com/repos/huxinfeng/test/tags',
+    teams_url: 'https://api.github.com/repos/huxinfeng/test/teams',
+    topics: [],
+    trees_url: 'https://api.github.com/repos/huxinfeng/test/git/trees{/sha}',
+    updated_at: '2024-08-07T21:53:38Z',
+    url: 'https://api.github.com/repos/huxinfeng/test',
+    visibility: 'public',
+    watchers: 0,
+    watchers_count: 0,
+    web_commit_signoff_required: false,
+  },
+  sender: {
+    avatar_url: 'https://avatars.githubusercontent.com/u/63422671?v=4',
+    events_url: 'https://api.github.com/users/huxinfeng/events{/privacy}',
+    followers_url: 'https://api.github.com/users/huxinfeng/followers',
+    following_url: 'https://api.github.com/users/huxinfeng/following{/other_user}',
+    gists_url: 'https://api.github.com/users/huxinfeng/gists{/gist_id}',
+    gravatar_id: '',
+    html_url: 'https://github.com/huxinfeng',
+    id: 63422671,
+    login: 'huxinfeng',
+    node_id: 'MDQ6VXNlcjYzNDIyNjcx',
+    organizations_url: 'https://api.github.com/users/huxinfeng/orgs',
+    received_events_url: 'https://api.github.com/users/huxinfeng/received_events',
+    repos_url: 'https://api.github.com/users/huxinfeng/repos',
+    site_admin: false,
+    starred_url: 'https://api.github.com/users/huxinfeng/starred{/owner}{/repo}',
+    subscriptions_url: 'https://api.github.com/users/huxinfeng/subscriptions',
+    type: 'User',
+    url: 'https://api.github.com/users/huxinfeng',
+  },
+};
+console.log(a);
