@@ -59,14 +59,25 @@ jobs:
             echo "No cached files found."
           fi
 
-      - name: cache build astro
-        id: cache_build_astro
-        uses: actions/cache@v4
-        with:
-          path: dist
-          key: ${{ runner.os }}-cache_build_astro-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-cache_build_astro-
-
       - name: build astro
-        if: steps.cache_build_astro.outputs.cache-hit != 'true'
         run: pnpm run build
+
+      - name: artifact build astro
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist/
+
+  deploy-github:
+    name: Deploy Github
+    needs: discussions-process-posts
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: deploy to gitHub pages
+        id: deployment
+        uses: actions/deploy-pages@v4
