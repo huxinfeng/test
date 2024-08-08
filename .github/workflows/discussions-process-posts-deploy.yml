@@ -13,7 +13,7 @@ permissions:
 jobs:
   discussions-process-posts:
     name: Discussions Process Posts
-    if: contains(fromJson('["q-a", "我的"]'), github.event.discussion.category.slug)
+    # if: contains(fromJson('["q-a", "我的"]'), github.event.discussion.category.slug)
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
