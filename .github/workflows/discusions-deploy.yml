@@ -6,12 +6,13 @@ on:
   discussion:
     types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
 
-
 jobs:
   discussions-process-posts:
     name: Discussions Process Posts
     if: contains(fromJson('["q-a", "memo"]'), github.event.discussion.category.slug)
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -31,4 +32,16 @@ jobs:
           cache: 'pnpm'
 
       - name: discussions process posts payload
-        run: pnpm run discussions-process-posts "${{github.event_path}}"
+        run: pnpm run discussions-process-posts "${{ github.event_path }}"
+
+  deploy:
+    name: Deploy
+    needs: discussions-process-posts
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: deploy gitHub pages site
+        id: deployment
+        uses: actions/deploy-pages@v4
