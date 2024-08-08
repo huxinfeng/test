@@ -34,6 +34,9 @@ jobs:
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{ github.event_path }}"
 
+      - name: Install, build, and upload your site
+        uses: withastro/action@v2
+
   deploy-github:
     name: Deploy Github
     needs: discussions-process-posts
