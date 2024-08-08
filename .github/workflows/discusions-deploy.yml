@@ -13,36 +13,35 @@ permissions:
 
 jobs:
   discussions-process-posts:
-    name: Process payload
     if: contains(fromJson('["q-a", "memo"]'), github.event.discussion.category.slug)
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: checkout
+        uses: actions/checkout@v4
 
-      - name: Install Node.js
+      - name: install nodejs 20
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Enable pnpm
+      - name: enable pnpm
         run: corepack enable
 
-      - name: Install dependencies
+      - name: install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Discussions process posts payload
+      - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{github.event_path}}"
 
-      - name: Commit & Push changes
+      - name: commit & push changes
         uses: actions-js/push@master
         with:
           branch: master
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install, build, and upload your site
+      - name: install, build, and upload your site
         uses: withastro/action@v1
         with:
           path: .
@@ -55,6 +54,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
