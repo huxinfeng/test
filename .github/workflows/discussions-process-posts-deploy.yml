@@ -54,7 +54,7 @@ jobs:
         run: |
           if [ -d "src/content/blog" ]; then
             echo "Cached files are available."
-            ls -l src/content/blog
+            ls -lR src/content/blog
           else
             echo "No cached files found."
           fi
