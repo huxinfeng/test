@@ -3,14 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "commit": "czg",
-    "start": "pnpm run dev",
-    "dev": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro",
-    "discussions-process-posts": "pnpx tsx scripts/discussions-process-posts.ts",
-    "prepare": "husky"
+    "discussions-process-posts": "pnpx tsx scripts/discussions-process-posts.ts"
   },
   "devDependencies": {
     "@octokit/graphql": "^8.1.1"
