@@ -6,6 +6,10 @@ on:
   discussion:
     types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 jobs:
   discussions-process-posts:
     name: Discussions Process Posts
