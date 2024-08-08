@@ -19,34 +19,26 @@ jobs:
         with:
           ref: main
 
-      - name: setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: |
-            args: [--frozen-lockfile]
-
       - name: setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version-file: '.node-version'
           cache: 'pnpm'
 
+      - name: enable pnpm
+        run: corepack enable
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{ github.event_path }}"
 
-      - name: Install, build, and upload your site
-        uses: withastro/action@v2
-
-  deploy-github:
-    name: Deploy Github
+  build:
+    name: Build
     needs: discussions-process-posts
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      pages: write
-    environment:
-      name: github-pages
     steps:
       - name: deploy to gitHub pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        run: pnpm -v
