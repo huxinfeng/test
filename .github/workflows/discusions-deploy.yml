@@ -33,6 +33,9 @@ jobs:
 
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{ github.event_path }}"
+        
+      - name: Install, build, and upload your site
+        uses: withastro/action@v2
 
   deploy:
     name: Deploy
@@ -44,12 +47,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Install, build, and upload your site
-        uses: withastro/action@v1
-        with:
-          path: .
-          node-version: 20
-          package-manager: pnpm@latest
       - name: deploy gitHub pages site
         id: deployment
         uses: actions/deploy-pages@v4
