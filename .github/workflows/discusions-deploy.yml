@@ -30,7 +30,7 @@ jobs:
         run: corepack enable
 
       - name: install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{github.event_path}}"
