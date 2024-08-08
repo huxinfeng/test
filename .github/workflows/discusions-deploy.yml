@@ -33,12 +33,9 @@ jobs:
 
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{ github.event_path }}"
-        
-      - name: Install, build, and upload your site
-        uses: withastro/action@v2
 
-  deploy:
-    name: Deploy
+  deploy-github:
+    name: Deploy Github
     needs: discussions-process-posts
     runs-on: ubuntu-latest
     permissions:
@@ -48,6 +45,23 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: deploy gitHub pages site
+      - name: deploy to gitHub pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-cloudflare:
+    name: Deploy Cloudflare
+    needs: discussions-process-posts
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy to cloudflare pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: YOUR_ACCOUNT_ID
+          projectName: YOUR_PROJECT_NAME
+          directory: YOUR_BUILD_OUTPUT_DIRECTORY
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          workingDirectory: my-site
+          wranglerVersion: '3'
