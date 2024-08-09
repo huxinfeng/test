@@ -95,6 +95,3 @@ jobs:
           projectName: test
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
-          workingDirectory: my-site
-          wranglerVersion: '3'
