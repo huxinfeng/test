@@ -75,8 +75,11 @@ jobs:
       - name: deploy to gitHub pages
         id: deployment
         uses: actions/deploy-pages@v4
+
       - run: |
-          echo "${{ steps.deployment }}"
+          echo "${{ steps.deployment.conclusion }}"
+          echo "${{ steps.deployment.outcome }}"
+          echo "${{ steps.deployment.outputs.page_url }}"
 
   deploy-cloudflare:
     name: Deploy Cloudflare
@@ -89,6 +92,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+
       - name: deploy to cloudflare pages
         id: deployment
         uses: cloudflare/pages-action@v1
@@ -96,7 +104,9 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ github.event.repository.name }}
-          directory: ${{ env.BUILD_DIRECTORY }}
+          directory: ${{ runner.temp }}/artifact.tar
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
       - run: |
           echo "${{ steps.deployment }}"
+          echo "${{ runner.temp }}"
