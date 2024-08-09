@@ -23,8 +23,7 @@ jobs:
           ref: main
       - name: Use cached files
         run: |
-          cat ${{ github.event_path }}
-          echo ${{ github.event }}
+          echo fromJson(${{ github.event }})
           echo ${{ github }}
 
       - name: setup Node.js environment
