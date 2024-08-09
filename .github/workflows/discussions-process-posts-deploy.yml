@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -66,6 +69,15 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist/
+      - name: deploy to cloudflare pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: test
+          directory: ./dist/
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
 
   deploy-github:
     name: Deploy Github
@@ -86,18 +98,6 @@ jobs:
     name: Deploy Cloudflare
     needs: discussions-process-posts
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      deployments: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: deploy to cloudflare pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: test
-          # directory: ./dist/
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
