@@ -97,7 +97,8 @@ jobs:
         with:
           name: github-pages
 
-      - run: |
+      - name: echo
+        run: |
           echo "${{ runner.temp }}"
           cd /home/runner/work/test/test
           ls -lR
