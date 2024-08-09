@@ -97,6 +97,11 @@ jobs:
         with:
           name: github-pages
 
+      - name: unzip artifact
+        run: |
+          mkdir -p ${{ env.BUILD_DIRECTORY }}
+          unzip artifact.tar -d ${{ env.BUILD_DIRECTORY }}
+
       - name: echo
         run: |
           echo "${{ runner.temp }}"
@@ -110,7 +115,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ github.event.repository.name }}
-          directory: 'x'
+          directory: ${{ env.BUILD_DIRECTORY }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - run: |
