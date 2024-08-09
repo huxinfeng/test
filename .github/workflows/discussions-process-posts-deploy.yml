@@ -23,8 +23,9 @@ jobs:
           ref: main
       - name: Use cached files
         run: |
-          ${{ github.event }}
-          ${{ github }}
+          cat ${{ github.event_path }}
+          cat ${{ github.event }}
+          cat ${{ github }}
 
       - name: setup Node.js environment
         uses: actions/setup-node@v4
