@@ -81,6 +81,7 @@ async function writeDiscussion(repoOwner: string, repoName: string, discussionNu
   console.log(`Write discussion https://github.com/${repoOwner}/${repoName}/discussions/${discussionNumber}`);
 
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  console.log(process.env.GITHUB_EVENT);
   const graphqlAuth = graphql.defaults({
     headers: {
       Authorization: `token ${GITHUB_TOKEN}`,
