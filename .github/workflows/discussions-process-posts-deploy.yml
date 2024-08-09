@@ -6,6 +6,14 @@ on:
   discussion:
     types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
 
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  CLOUDFLARE_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+  GITHUB_EVENT: ${{ github.event }}
+
 jobs:
   print-context:
     runs-on: ubuntu-latest
