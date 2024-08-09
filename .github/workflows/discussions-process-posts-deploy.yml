@@ -6,39 +6,21 @@ on:
   discussion:
     types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
 
-
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  CLOUDFLARE_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
-  CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-  REPOSITORY_NAME: ${{ github.event.repository.name }}
-  # GITHUB_EVENT: ${{ github.event }}
+  BUILD_DIRECTORY: dist
 
 jobs:
-  print-context:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Print GitHub context
-      run: echo "$GITHUB_CONTEXT"
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
   discussions-process-posts:
     name: Discussions Process Posts
-    if: contains(fromJson('["q-a", "我的"]'), github.event.discussion.category.slug)
+    if: contains(fromJson('["announcements", "html", "css", "javascript", "canvas", "node", "数据库", "运维", "算法"]'),github.event.discussion.category.slug)
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      contents: read
-      deployments: write
     steps:
-      - name: checkout "${{ github.event_path }}"
+      - name: checkout
         uses: actions/checkout@v4
         with:
           ref: main
-      - name: Use cached files
-        run: |
-          echo "${{ github }}"
 
       - name: setup Node.js environment
         uses: actions/setup-node@v4
@@ -71,31 +53,13 @@ jobs:
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{ github.event_path }}"
 
-      - name: Use cached files
-        run: |
-          if [ -d "src/content/blog" ]; then
-            echo "Cached files are available."
-            ls -lR src/content/blog
-          else
-            echo "No cached files found."
-          fi
-
       - name: build astro
         run: pnpm run build
 
       - name: artifact build astro
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/
-      - name: deploy to cloudflare pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: test
-          directory: ./dist/
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          path: ${{ env.BUILD_DIRECTORY }}
 
   deploy-github:
     name: Deploy Github
@@ -117,5 +81,11 @@ jobs:
     needs: discussions-process-posts
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: deploy to cloudflare pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ github.event.repository.name }}
+          directory: ${{ env.BUILD_DIRECTORY }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
