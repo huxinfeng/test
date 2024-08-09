@@ -68,9 +68,6 @@ jobs:
     permissions:
       id-token: write
       pages: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: deploy to gitHub pages
         id: deployment
@@ -80,6 +77,8 @@ jobs:
     name: Deploy Cloudflare
     needs: discussions-process-posts
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     steps:
       - name: deploy to cloudflare pages
         uses: cloudflare/pages-action@v1
