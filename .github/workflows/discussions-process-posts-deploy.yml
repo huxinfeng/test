@@ -119,4 +119,6 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - run: |
-          echo "${{ steps.deployment }}"
+          echo "${{ steps.deployment.conclusion }}"
+          echo "${{ steps.deployment.outcome }}"
+          echo "${{ steps.deployment.outputs.page_url }}"
