@@ -8,6 +8,7 @@ on:
 
 env:
   BUILD_DIRECTORY: dist
+  ARTIFACT_NAME: artifact
 
 jobs:
   discussions-process-posts:
@@ -59,27 +60,25 @@ jobs:
       - name: artifact build astro
         uses: actions/upload-pages-artifact@v3
         with:
+          name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.BUILD_DIRECTORY }}
 
   deploy-github:
     name: Deploy Github
     needs: discussions-process-posts
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       id-token: write
       pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: deploy to gitHub pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - run: |
-          echo "${{ steps.deployment.conclusion }}"
-          echo "${{ steps.deployment.outcome }}"
-          echo "${{ steps.deployment.outputs.page_url }}"
+        with:
+          artifact_name: ${{ env.ARTIFACT_NAME }}
 
   deploy-cloudflare:
     name: Deploy Cloudflare
@@ -89,24 +88,18 @@ jobs:
       contents: read
       deployments: write
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: cloudflare-pages
+      url: https://${{ github.event.repository.name }}.pages.dev/
     steps:
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
-          name: github-pages
+          name: ${{ env.ARTIFACT_NAME }}
 
       - name: unzip artifact
         run: |
           mkdir -p ${{ env.BUILD_DIRECTORY }}
           tar -xf artifact.tar -C ${{ env.BUILD_DIRECTORY }}
-
-      - name: echo
-        run: |
-          echo "${{ runner.temp }}"
-          cd /home/runner/work/test/test
-          ls -lR
 
       - name: deploy to cloudflare pages
         id: deployment
@@ -117,8 +110,3 @@ jobs:
           projectName: ${{ github.event.repository.name }}
           directory: ${{ env.BUILD_DIRECTORY }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-
-      - run: |
-          echo "${{ steps.deployment.conclusion }}"
-          echo "${{ steps.deployment.outcome }}"
-          echo "${{ steps.deployment.outputs.page_url }}"
