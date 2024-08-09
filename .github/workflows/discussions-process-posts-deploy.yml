@@ -24,8 +24,8 @@ jobs:
       - name: Use cached files
         run: |
           cat ${{ github.event_path }}
-          cat ${{ github.event }}
-          cat ${{ github }}
+          echo ${{ github.event }}
+          echo ${{ github }}
 
       - name: setup Node.js environment
         uses: actions/setup-node@v4
