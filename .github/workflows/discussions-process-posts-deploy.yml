@@ -17,7 +17,7 @@ jobs:
       contents: read
       deployments: write
     steps:
-      - name: checkout
+      - name: checkout "${{ github.event_path }}"
         uses: actions/checkout@v4
         with:
           ref: main
