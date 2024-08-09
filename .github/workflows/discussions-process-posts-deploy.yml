@@ -65,6 +65,9 @@ jobs:
     name: Deploy Github
     needs: discussions-process-posts
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       id-token: write
       pages: write
@@ -72,18 +75,22 @@ jobs:
       - name: deploy to gitHub pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - run: |
+          echo "${{ steps.deployment }}"
 
   deploy-cloudflare:
     name: Deploy Cloudflare
     needs: discussions-process-posts
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
     permissions:
       contents: read
       deployments: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: deploy to cloudflare pages
+        id: deployment
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -91,3 +98,5 @@ jobs:
           projectName: ${{ github.event.repository.name }}
           directory: ${{ env.BUILD_DIRECTORY }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          echo "${{ steps.deployment }}"
