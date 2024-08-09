@@ -89,7 +89,9 @@ jobs:
       deployments: write
     environment:
       name: cloudflare-pages
-      url: https://${{ github.event.repository.name }}.pages.dev/
+      url: |
+        https://${{ github.event.repository.name }}.pages.dev/
+        https://${{ github.event.repository.name }}.hxf.icu/
     steps:
       - name: download artifact
         uses: actions/download-artifact@v4
