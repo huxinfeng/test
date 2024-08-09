@@ -100,7 +100,7 @@ jobs:
       - name: unzip artifact
         run: |
           mkdir -p ${{ env.BUILD_DIRECTORY }}
-          tar -xf artifact.tar -d ${{ env.BUILD_DIRECTORY }}
+          tar -xf artifact.tar -C ${{ env.BUILD_DIRECTORY }}
 
       - name: echo
         run: |
