@@ -79,6 +79,9 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: deploy to cloudflare pages
         uses: cloudflare/pages-action@v1
