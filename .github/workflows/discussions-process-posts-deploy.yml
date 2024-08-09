@@ -91,7 +91,7 @@ jobs:
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: 078b19d853bfd6b182e09a8a332fd2a2
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: test
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
