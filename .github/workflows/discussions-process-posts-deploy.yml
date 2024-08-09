@@ -97,6 +97,11 @@ jobs:
         with:
           name: github-pages
 
+      - run: |
+          echo "${{ runner.temp }}"
+          cd /home/runner/work/test/test
+          ls -lR
+
       - name: deploy to cloudflare pages
         id: deployment
         uses: cloudflare/pages-action@v1
@@ -104,9 +109,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ github.event.repository.name }}
-          directory: /
+          directory: 'x'
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - run: |
           echo "${{ steps.deployment }}"
-          echo "${{ runner.temp }}"
