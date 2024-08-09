@@ -7,6 +7,13 @@ on:
     types: [created, edited, deleted, pinned, unpinned, labeled, unlabeled, category_changed]
 
 jobs:
+  print-context:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print GitHub context
+      run: echo "$GITHUB_CONTEXT"
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
   discussions-process-posts:
     name: Discussions Process Posts
     if: contains(fromJson('["q-a", "我的"]'), github.event.discussion.category.slug)
@@ -23,8 +30,7 @@ jobs:
           ref: main
       - name: Use cached files
         run: |
-          echo fromJson(${{ github.event }})
-          echo ${{ github }}
+          echo "${{ github }}"
 
       - name: setup Node.js environment
         uses: actions/setup-node@v4
