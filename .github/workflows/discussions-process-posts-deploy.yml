@@ -23,7 +23,6 @@ jobs:
           ref: main
       - name: Use cached files
         run: |
-          # ${{ github.event_path }}
           ${{ github.event }}
           ${{ github }}
 
