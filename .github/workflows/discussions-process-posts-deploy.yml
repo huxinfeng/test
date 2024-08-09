@@ -92,8 +92,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: 078b19d853bfd6b182e09a8a332fd2a2
-          projectName: YOUR_PROJECT_NAME
-          directory: YOUR_BUILD_OUTPUT_DIRECTORY
+          projectName: my-project111111111sasa
+          directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
           workingDirectory: my-site
