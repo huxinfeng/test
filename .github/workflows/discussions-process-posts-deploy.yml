@@ -45,13 +45,13 @@ jobs:
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{ github.event_path }}"
 
-      - name: cache posts
-        id: cache_posts
-        uses: actions/cache@v4
-        with:
-          path: ./src/content/blog/
-          key: ${{ runner.os }}-cache_posts-${{ hashFiles('src/content/blog/**/*.md') }}
-          restore-keys: ${{ runner.os }}-cache_posts-
+      # - name: cache posts
+      #   id: cache_posts
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ./src/content/blog/
+      #     key: ${{ runner.os }}-cache_posts-${{ hashFiles('src/content/blog/**/*.md') }}
+      #     restore-keys: ${{ runner.os }}-cache_posts-
 
       - name: Use cached files
         run: |
