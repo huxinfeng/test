@@ -104,7 +104,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ github.event.repository.name }}
-          directory: ${{ runner.temp }}/artifact.tar
+          directory: ${{ runner.temp }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - run: |
