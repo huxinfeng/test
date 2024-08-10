@@ -4,29 +4,16 @@ import { deleteDiscussion, type IGithubEventPath, writeDiscussion } from './util
 
 const discussionsProcessPosts = (githubEventPath: string) => {
   const event: IGithubEventPath = JSON.parse(fs.readFileSync(githubEventPath, 'utf-8'));
-  const action = event.action;
   const repoId = event.repository.node_id;
   const repoOwner = event.repository.owner.login;
   const repoName = event.repository.name;
   const discussionNumber = event.discussion.number;
   const categoryNmae = event.discussion.category.slug;
 
-  switch (action) {
-    case 'created':
-    case 'edited':
-    case 'pinned':
-    case 'unpinned':
-    case 'labeled':
-    case 'unlabeled':
-      writeDiscussion(repoOwner, repoName, discussionNumber, repoId);
-      break;
-    case 'deleted':
-      deleteDiscussion(categoryNmae, discussionNumber);
-      break;
-    case 'category_changed':
-      deleteDiscussion(categoryNmae, discussionNumber);
-      writeDiscussion(repoOwner, repoName, discussionNumber, repoId);
-      break;
+  const nums = parseInt(process.env.DISCUSSIONS_MAX_NUMS || '0');
+  for (let i = 1; i <= nums; i++) {
+    deleteDiscussion(categoryNmae, discussionNumber);
+    writeDiscussion(repoOwner, repoName, discussionNumber, repoId);
   }
 };
 
