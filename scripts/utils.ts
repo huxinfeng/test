@@ -193,3 +193,12 @@ export function deleteDiscussion(categoryNmae: string, discussionNumber: number)
     fs.rmSync(filepath);
   }
 }
+
+export async function deleteDirectory(path: string) {
+  try {
+    await fs.rm(path, { recursive: true, force: true }, () => {});
+    console.log('Directory deleted successfully!');
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}

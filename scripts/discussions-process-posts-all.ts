@@ -1,17 +1,16 @@
 import fs from 'node:fs';
 
-import { deleteDiscussion, type IGithubEventPath, writeDiscussion } from './utils';
+import { deleteDirectory, type IGithubEventPath, writeDiscussion } from './utils';
 
-const discussionsProcessPosts = (githubEventPath: string) => {
+const discussionsProcessPosts = async (githubEventPath: string) => {
   const event: IGithubEventPath = JSON.parse(fs.readFileSync(githubEventPath, 'utf-8'));
   const repoId = event.repository.node_id;
   const repoOwner = event.repository.owner.login;
   const repoName = event.repository.name;
-  const categoryNmae = event.discussion.category.slug;
-
   const nums = parseInt(process.env.DISCUSSIONS_MAX_NUMS || '0');
+
+  await deleteDirectory('src/content/blog');
   for (let i = 1; i <= nums; i++) {
-    deleteDiscussion(categoryNmae, i);
     writeDiscussion(repoOwner, repoName, i, repoId);
   }
 };
