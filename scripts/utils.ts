@@ -202,3 +202,34 @@ export async function deleteDirectory(path: string) {
     console.error('Error:', err);
   }
 }
+
+interface IFirstDiscussionsRes {
+  repository: {
+    discussions: {
+      nodes: { number: number }[];
+    };
+  };
+}
+export async function getDiscussionIdSet(repoOwner: string, repoName: string, firstDiscussionsNums: string): Promise<number[]> {
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  const graphqlAuth = graphql.defaults({
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+    },
+  });
+  const gql = String.raw;
+  const res: IFirstDiscussionsRes = await graphqlAuth(
+    gql`
+        query {
+          repository(owner: "${repoOwner}", name: "${repoName}") {
+            discussions(first: ${firstDiscussionsNums}) {
+              nodes {
+                number
+              }
+            }
+          }
+        }
+    `,
+  );
+  return res.repository.discussions.nodes.map(itm => itm.number);
+}

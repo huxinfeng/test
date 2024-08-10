@@ -3,8 +3,8 @@ name: Discussions Process Posts Deploy ALL
 on:
   workflow_dispatch:
     inputs:
-      discussions_max_nums:
-        description: 'discussions nums'
+      first_discussions_nums:
+        description: 'first discussions nums'
         required: true
 
 env:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DISCUSSIONS_MAX_NUMS: ${{ github.event.inputs.discussions_max_nums }}
+      FIRST_DISCUSSIONS_NUMS: ${{ github.event.inputs.first_discussions_nums }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
