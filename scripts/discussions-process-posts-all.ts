@@ -7,13 +7,12 @@ const discussionsProcessPosts = (githubEventPath: string) => {
   const repoId = event.repository.node_id;
   const repoOwner = event.repository.owner.login;
   const repoName = event.repository.name;
-  const discussionNumber = event.discussion.number;
   const categoryNmae = event.discussion.category.slug;
 
   const nums = parseInt(process.env.DISCUSSIONS_MAX_NUMS || '0');
   for (let i = 1; i <= nums; i++) {
-    deleteDiscussion(categoryNmae, discussionNumber);
-    writeDiscussion(repoOwner, repoName, discussionNumber, repoId);
+    deleteDiscussion(categoryNmae, i);
+    writeDiscussion(repoOwner, repoName, i, repoId);
   }
 };
 
