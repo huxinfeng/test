@@ -194,15 +194,6 @@ export function deleteDiscussion(categoryNmae: string, discussionNumber: number)
   }
 }
 
-export async function deleteDirectory(path: string) {
-  try {
-    await fs.rm(path, { recursive: true, force: true }, () => {});
-    console.log('Directory deleted successfully!');
-  } catch (err) {
-    console.error('Error:', err);
-  }
-}
-
 interface IFirstDiscussionsRes {
   repository: {
     discussions: {
