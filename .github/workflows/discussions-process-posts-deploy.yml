@@ -55,6 +55,7 @@ jobs:
       - uses: prantlf/delete-cache-action@v3
         with:
           key: ${{ runner.os }}-cache_posts-all
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: save posts
         uses: actions/cache/save@v4
