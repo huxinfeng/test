@@ -52,10 +52,11 @@ jobs:
       - name: discussions process posts payload
         run: pnpm run discussions-process-posts "${{ github.event_path }}"
 
-      - uses: prantlf/delete-cache-action@v3
+      - name: delete cache posts
+        uses: DareFox/delete-cache-by-key@v1
         with:
           key: ${{ runner.os }}-cache_posts-all
-          token: ${{ secrets.GITHUB_TOKEN }}
+          mode: exact
 
       - name: save posts
         uses: actions/cache/save@v4
