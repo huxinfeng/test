@@ -1,6 +1,6 @@
 import type { Site, SocialObjects } from './types';
 
-const author = '星宿君1';
+const author = '星宿君12';
 export const SITE: Site = {
   website: 'https://hxf.icu', // replace this with your deployed domain
   author,
