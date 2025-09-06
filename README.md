@@ -1,7 +1,7 @@
 # Astro Starter Kit: Minimal11
 
 ```sh
-npm create astro@latest -- --template minimal1
+npm create astro@latest -- --template minimal12
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
